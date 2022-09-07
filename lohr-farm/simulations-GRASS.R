@@ -14,6 +14,13 @@
 # 4. process accordingly
 
 
+
+## TODO:
+#  * tinker with rainfall intensity grid
+#  * how can we use manning's n with varying land cover / management?
+#  * export legend
+
+
 library(rgrass7)
 library(terra)
 library(sf)
@@ -42,8 +49,11 @@ execGRASS('g.region', flags = c('a', 'p'), parameters = list(raster = 'elev3m'))
 
 ## land cover --> infiltration rate
 execGRASS('v.in.ogr', flags = c('overwrite'), parameters = list(input = 'gis-data/land-cover.shp', output = 'cover'))
-execGRASS('v.to.rast', flags = c('overwrite'), parameters = list(input = 'cover', output = 'cover', use = 'val', value = 1))
-execGRASS('r.mapcalc', flags = c('overwrite'), parameters = list(expression = 'i_rate = if(isnull(cover), 0.2, 0.8)'))
+execGRASS('v.to.rast', flags = c('overwrite'), parameters = list(input = 'cover', output = 'cover', use = 'attr', attribute_column = 'infil'))
+
+# background values are 0.2 mm/hr
+# otherwise use infiltration rate defined in 'cover'
+execGRASS('r.mapcalc', flags = c('overwrite'), parameters = list(expression = 'i_rate = if(isnull(cover), 0.2, cover)'))
 
 
 # partial derivatives
@@ -58,6 +68,7 @@ execGRASS('r.slope.aspect', flags = c('overwrite'), parameters = list(elevation=
 
 # cleanup previous, in case steady state is reached sooner / later
 execGRASS('g.remove', flags = 'f', parameters = list(type = 'rast', pattern = 'water_depth*'))
+execGRASS('g.remove', flags = 'f', parameters = list(type = 'rast', pattern = 'discharge*'))
 
 
 # time series
@@ -92,7 +103,7 @@ dir.create(.p)
 Sys.setenv(GRASS_RENDER_TRANSPARENT = TRUE)
 
 
-## TODO: this is quite slow
+## TODO: this is quite slow: ~ 3 minutes / 90 images
 # iterate over maps in simulation
 .nothing <- pblapply(seq_along(.r), function(i) {
   
@@ -106,8 +117,8 @@ Sys.setenv(GRASS_RENDER_TRANSPARENT = TRUE)
   .null <- execGRASS('d.mon', flags = c('overwrite'), parameters = list(start = 'cairo', output = .f, width = 6, height = 5, resolution = 96), intern = TRUE)
   
   # thematic display of current frame
-  .null <- execGRASS('d.rast', parameters = list(map = .m, values = '0.005-999'), intern = TRUE)
-  .null <- execGRASS('d.vect', parameters = list(map = 'cover', fill_color = 'none', color = 'white'), intern = TRUE)
+  .null <- execGRASS('d.rast', parameters = list(map = .m, values = '0.004-999'), intern = TRUE)
+  .null <- execGRASS('d.vect', parameters = list(map = 'cover', fill_color = 'none', color = 'black'), intern = TRUE)
   
   # stop device
   .null <- execGRASS('d.mon', parameters = list(stop = 'cairo'), intern = TRUE)
