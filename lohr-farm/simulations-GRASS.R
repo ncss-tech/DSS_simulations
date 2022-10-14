@@ -1,4 +1,11 @@
 
+## works with: 
+# terra_1.6-28
+# rgrass7_0.2-10
+
+## TODO:
+# try out rgrass package: https://cran.r-project.org/web/packages/rgrass/vignettes/use.html
+
 
 ## getting closer to a consistent interface to GRASS GIS on gov machine, but still very annoying
 
@@ -128,7 +135,7 @@ Sys.setenv(GRASS_RENDER_TRANSPARENT = TRUE)
 
 
 
-
-# d <- read_RAST('water_depth', return_format = 'terra')
-# plot(d, col = mako(25))
+# try reading raster data directly from GRASS
+d <- read_RAST('elev3m_dx', return_format = 'terra')
+plot(d, col = mako(25))
 
