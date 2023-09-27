@@ -100,7 +100,7 @@ execGRASS('r.sim.water', flags = c('overwrite', 't'), parameters = list(elevatio
 # output is a character vector
 .r <- execGRASS('g.list', parameters = list(type = 'rast', pattern = 'water_depth.??'), intern = TRUE)
 
-# ouput dir for simulation frames
+# output dir for simulation frames
 .p <- 'water-depth-frames'
 unlink(.p, recursive = TRUE)
 dir.create(.p)
