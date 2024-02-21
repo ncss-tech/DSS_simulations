@@ -1,8 +1,4 @@
 
-## TODO:
-#  * adjust camera angle
-#  * crop image before animation
-
 ## latest rayshader from GH required
 
 ## Notes:
